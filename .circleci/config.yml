@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  maven: circleci/maven@1.2.0
+
 jobs:
   build:
     docker:
@@ -15,3 +18,7 @@ workflows:
     jobs:
       - build:
           context: SonarCloud
+      - maven/test:
+          executor:
+            name: "maven/default"
+            tag: "17.0.0"
