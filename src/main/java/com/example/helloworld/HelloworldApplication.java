@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 public class HelloworldApplication {
 
-	@Value("${NAME:World}")
+	@Value("${NAME:Sample}")
 	String name;
 
 	@RestController
