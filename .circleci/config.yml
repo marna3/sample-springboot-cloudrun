@@ -4,7 +4,7 @@ orbs:
   maven: circleci/maven@1.4.1
 
 jobs:
-  build:
+  analytics_and_test:
     docker:
       - image: 'cimg/openjdk:17.0'
     steps:
@@ -16,9 +16,5 @@ jobs:
 workflows:
   main:
     jobs:
-      - build:
+      - analytics_and_test:
           context: SonarCloud
-      - maven/test:
-          executor:
-            name: "maven/default"
-            tag: "17.0.0"
