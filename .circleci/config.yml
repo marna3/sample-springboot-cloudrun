@@ -1,12 +1,17 @@
 version: 2.1
 
-orbs:
-  maven: circleci/maven@1.2.0
+jobs:
+  build:
+    docker:
+      - image: 'cimg/openjdk:17.0'
+    steps:
+      - checkout
+      - run:
+          name: Analyze on SonarCloud
+          command: mvn verify sonar:sonar -Dsonar.projectKey=marna3_sample-springboot-cloudrun
 
 workflows:
-  maven_test:
+  main:
     jobs:
-      - maven/test:
-          executor:
-            name: "maven/default"
-            tag: "17.0.0"
+      - build:
+          context: SonarCloud
