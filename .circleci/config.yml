@@ -1,22 +1,26 @@
 version: 2.1
 
-jobs:
-  build-and-push:
+executors:
+  openjdk:
     docker:
       - image: 'cimg/openjdk:17.0'
+
+commands:
+  test-and-analyze:
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
           name: Unit Test & Analyze on SonarCloud
-          command: mvn verify sonar:sonar -Dsonar.projectKey=marna3_sample-springboot-cloudrun
+          command: mvn verify sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+  image-build:
+    steps:
       - run:
           name: Image Build
           command: mvn clean package docker:build 
             -DskipTests=True 
             -DgoogleCloudRegion=${GCP_REGION} 
             -DgoogleCloudProjectId=${GCP_PROJECT}
+  authorize_gcloud:
+    steps:
       - run:
           name: Install Gcloud Command & Authorize Google Cloud
           command: |
@@ -27,17 +31,38 @@ jobs:
       - run:
           name: Configure Authentication
           command: gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev --quiet
+  image_push:
+    steps:
       - run:
           name: Image Push
           command: mvn docker:push
             -DgoogleCloudRegion=${GCP_REGION} 
             -DgoogleCloudProjectId=${GCP_PROJECT}
 
+jobs:
+  pre-build:
+    executor: openjdk
+    steps:
+      - checkout
+      - test-and-analyze
+  build-and-push:
+    executor: openjdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - image-build
+      - authorize_gcloud
+      - image_push
+
 workflows:
   main:
     jobs:
-      - build-and-push:
-          name: Docker Build and Push
+      - pre-build: 
           context: 
-          - SonarCloud
-          - GoogleCloud
+            - SonarCloud
+      - build-and-push:
+          context:
+            - GoogleCloud
+          requires:
+            - pre-build
