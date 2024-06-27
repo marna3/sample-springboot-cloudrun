@@ -4,17 +4,20 @@ orbs:
   maven: circleci/maven@1.4.1
 
 jobs:
-  analytics_and_test:
+  build:
     docker:
       - image: 'cimg/openjdk:17.0'
     steps:
       - checkout
       - run:
-          name: Analyze on SonarCloud
+          name: Unit Test & Analyze on SonarCloud
           command: mvn verify sonar:sonar -Dsonar.projectKey=marna3_sample-springboot-cloudrun
+      - run:
+          name: Image Build
+          command: mvn clean package docker:build
 
 workflows:
   main:
     jobs:
-      - analytics_and_test:
+      - build:
           context: SonarCloud

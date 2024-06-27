@@ -56,6 +56,22 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.44.0</version>
+				<configuration>
+					<name>asia-northeast1-docker.pkg.dev/jpn-ti-pj/sample-springboot-cloudrun/helloworld</name>
+					<build>
+						<tags>
+							<tag>${project.version}</tag>
+						</tags>
+						<contextDir>${project.basedir}/build</contextDir>
+					</build>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
