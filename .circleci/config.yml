@@ -9,12 +9,17 @@ jobs:
       - image: 'cimg/openjdk:17.0'
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Unit Test & Analyze on SonarCloud
           command: mvn verify sonar:sonar -Dsonar.projectKey=marna3_sample-springboot-cloudrun
       - run:
           name: Image Build
-          command: mvn clean package docker:build
+          command: mvn clean package docker:build 
+            -DskipTests=True 
+            -DgoogleCloudRegion=${GOOGLE_CLOUD_REGION} 
+            -DgoogleCloudProjectId=${GOOGLE_CLOUD_PROJECT_ID}
 
 workflows:
   main:
