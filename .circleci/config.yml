@@ -1,10 +1,10 @@
 version: 2.1
 
 orbs:
-  gcp-cli: circleci/gcp-cli@2.4.1
+  gcp-cli: circleci/gcp-cli@3.2.1
 
 jobs:
-  build:
+  build-and-push:
     docker:
       - image: 'cimg/openjdk:17.0'
     steps:
@@ -20,11 +20,16 @@ jobs:
             -DskipTests=True 
             -DgoogleCloudRegion=${GCP_REGION} 
             -DgoogleCloudProjectId=${GCP_PROJECT}
+      - run:
+          name: Image Push
+          command: mvn docker:push
+            -DgoogleCloudRegion=${GCP_REGION} 
+            -DgoogleCloudProjectId=${GCP_PROJECT}
 
 workflows:
   main:
     jobs:
-      - build:
+      - build-and-push:
           name: Docker Build and Push
           context: 
           - SonarCloud
