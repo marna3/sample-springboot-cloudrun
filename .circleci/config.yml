@@ -4,17 +4,25 @@ orbs:
   maven: circleci/maven@1.4.1
 
 jobs:
-  analytics_and_test:
+  build:
     docker:
       - image: 'cimg/openjdk:17.0'
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Analyze on SonarCloud
+          name: Unit Test & Analyze on SonarCloud
           command: mvn verify sonar:sonar -Dsonar.projectKey=marna3_sample-springboot-cloudrun
+      - run:
+          name: Image Build
+          command: mvn clean package docker:build 
+            -DskipTests=True 
+            -DgoogleCloudRegion=${GOOGLE_CLOUD_REGION} 
+            -DgoogleCloudProjectId=${GOOGLE_CLOUD_PROJECT_ID}
 
 workflows:
   main:
     jobs:
-      - analytics_and_test:
+      - build:
           context: SonarCloud
