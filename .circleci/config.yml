@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  gcp-cli: circleci/gcp-cli@2.4.1
+
 jobs:
   build:
     docker:
@@ -15,11 +18,14 @@ jobs:
           name: Image Build
           command: mvn clean package docker:build 
             -DskipTests=True 
-            -DgoogleCloudRegion=${GOOGLE_CLOUD_REGION} 
-            -DgoogleCloudProjectId=${GOOGLE_CLOUD_PROJECT_ID}
+            -DgoogleCloudRegion=${GCP_REGION} 
+            -DgoogleCloudProjectId=${GCP_PROJECT}
 
 workflows:
   main:
     jobs:
       - build:
-          context: SonarCloud
+          name: Docker Build and Push
+          context: 
+          - SonarCloud
+          - GoogleCloud
