@@ -96,6 +96,7 @@ workflows:
           requires:
             - pre-build
       - deploy:
+          type: approval
           context:
             - GoogleCloud
           requires:
