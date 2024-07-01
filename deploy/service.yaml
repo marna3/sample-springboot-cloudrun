@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: helloworld
+  labels:
+    cloud.googleapis.com/location: asia-northeast1
+spec:
+  template:
+    spec:
+      containers:
+      - image: <GCP_REGION>-docker.pkg.dev/<GCP_PROJECT>/sample-springboot-cloudrun/helloworld:<IMAGE_TAG>
+        ports:
+          - containerPort: 8080
