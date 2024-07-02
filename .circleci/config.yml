@@ -6,12 +6,12 @@ executors:
       - image: 'cimg/openjdk:17.0'
 
 commands:
-  test-and-analyze:
+  test_and_analyze:
     steps:
       - run:
           name: Unit Test & Analyze on SonarCloud
           command: mvn verify sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}
-  image-build:
+  image_build:
     steps:
       - run:
           name: Image Build
@@ -67,14 +67,14 @@ jobs:
     executor: openjdk
     steps:
       - checkout
-      - test-and-analyze
+      - test_and_analyze
   build-and-push:
     executor: openjdk
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - image-build
+      - image_build
       - gcloud_setting
       - image_push
   deploy:
