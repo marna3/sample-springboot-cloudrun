@@ -11,6 +11,11 @@ commands:
       - run:
           name: Unit Test & Analyze on SonarCloud
           command: mvn verify sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+  dockerfile_analyze:
+    steps:
+      - run:
+          name: Dockerfile Lint
+          command: docker run --rm -i hadolint/hadolint <./build/Dockerfile
   image_build:
     steps:
       - run:
@@ -63,11 +68,18 @@ commands:
       #         --role=roles/run.invoker
 
 jobs:
-  pre-build:
+  pre-build-app:
     executor: openjdk
     steps:
       - checkout
       - test_and_analyze
+  pre-build-docker:
+    executor: openjdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - dockerfile_analyze
   build-and-push:
     executor: openjdk
     steps:
@@ -87,14 +99,16 @@ jobs:
 workflows:
   main:
     jobs:
-      - pre-build: 
+      - pre-build-app: 
           context: 
             - SonarCloud
+      - pre-build-docker
       - build-and-push:
           context:
             - GoogleCloud
           requires:
-            - pre-build
+            - pre-build-app
+            - pre-build-docker
       - deploy:
           type: approval
           context:
