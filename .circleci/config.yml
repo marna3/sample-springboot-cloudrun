@@ -109,9 +109,12 @@ workflows:
           requires:
             - pre-build-app
             - pre-build-docker
-      - deploy:
+      - confirm_deploy:
           type: approval
+          requires:
+            - build-and-push
+      - deploy:
           context:
             - GoogleCloud
           requires:
-            - build-and-push
+            - confirm_deploy
