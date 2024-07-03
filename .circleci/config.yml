@@ -10,7 +10,7 @@ commands:
     steps:
       - run:
           name: Unit Test & Analyze on SonarCloud
-          command: mvn verify sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+          command: mvn verify sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -DsonarOrganization=${SONAR_ORGANIZATION}
   dockerfile_analyze:
     steps:
       - run:

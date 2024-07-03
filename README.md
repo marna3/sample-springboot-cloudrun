@@ -15,6 +15,7 @@
 - Circle CIに環境変数の設定を行っていること
   - コンテキスト: SonarCloud
     - SONAR_TOKEN (SonarCloudで発行するトークン)
+    - SONAR_ORGANIZATION (SonarCloudの組織)
     - SONAR_PROJECT_KEY (SonarCloudのプロジェクト作成時に作成するキー)
   - コンテキスト: GoogleCloud
     - GCP_PROJECT (Google CloudのProject ID)
