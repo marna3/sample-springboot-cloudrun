@@ -4,6 +4,8 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:17.0'
+        environment:
+          TZ: Asia/Tokyo
 
 commands:
   test_and_analyze:
@@ -46,18 +48,15 @@ commands:
   cloudrun_deploy:
     steps:
       - run:
-          name: Set IMAGE_TAG from Maven
+          name: Apply Cloud Deploy release
           command: |
             export IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            echo "IMAGE_TAG=${IMAGE_TAG}"
-      - run:
-          name: Apply Cloud Deploy release
-          command: gcloud deploy releases create rel-'$DATE'-'$TIME'
-            --project=${GCP_PROJECT}
-            --region=${GCP_REGION}
-            --delivery-pipeline=sample-springboot-cloudrun-deployment
-            --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
-            --source ./deploy
+            gcloud deploy releases create rel-'$DATE'-'$TIME'
+              --project=${GCP_PROJECT}
+              --region=${GCP_REGION}
+              --delivery-pipeline=sample-springboot-cloudrun-deployment
+              --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
+              --source ./deploy
 
 jobs:
   pre-build-app:
