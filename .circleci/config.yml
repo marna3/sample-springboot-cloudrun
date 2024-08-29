@@ -4,8 +4,6 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:17.0'
-        environment:
-          TZ: Asia/Tokyo
 
 commands:
   test_and_analyze:
@@ -89,6 +87,8 @@ jobs:
       - checkout
       - gcloud_setting
       - cloudrun_deploy
+    environment:
+      TZ: Asia/Tokyo
 
 workflows:
   main:
@@ -103,6 +103,9 @@ workflows:
           requires:
             - pre-build-app
             - pre-build-docker
+          filters:
+            branches:
+              only: main
       - deploy:
           context:
             - GoogleCloud
