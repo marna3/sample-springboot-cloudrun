@@ -56,7 +56,7 @@ commands:
             --project=${GCP_PROJECT}
             --region=${GCP_REGION}
             --delivery-pipeline=sample-springboot-cloudrun-deployment
-            --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:{$IMAGE_TAG}
+            --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
             --source ./deploy
 
 jobs:
