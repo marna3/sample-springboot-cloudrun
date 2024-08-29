@@ -46,26 +46,18 @@ commands:
   cloudrun_deploy:
     steps:
       - run:
-          name: Set Configuration of Cloud Run Service
+          name: Set IMAGE_TAG from Maven
           command: |
-            export IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            echo "IMAGE_TAG=${IMAGE_TAG}"
-            sed -i "s/<GCP_REGION>/${GCP_REGION}/g" ./deploy/service.yaml
-            sed -i "s/<GCP_PROJECT>/${GCP_PROJECT}/g" ./deploy/service.yaml
-            sed -i "s/<IMAGE_TAG>/${IMAGE_TAG}/g" ./deploy/service.yaml
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
       - run:
-          name: Deploy to Cloud Run
-          command: |
-            cat ./deploy/service.yaml
-            gcloud run services replace ./deploy/service.yaml --project=${GCP_PROJECT}
-      # - run:
-      #     name: Allow Access to Cloud Run Service # 未認証の呼び出しを許可する場合、コメントを外す (権限付与の権限が必要)
-      #     command: |
-      #       gcloud run services add-iam-policy-binding helloworld \
-      #         --project=${GCP_PROJECT} \
-      #         --region=${GCP_REGION} \
-      #         --member=allUsers \
-      #         --role=roles/run.invoker
+          name: Apply Cloud Deploy release
+          command: gcloud deploy releases create rel-'$DATE'-'$TIME'
+            --project=${GCP_PROJECT}
+            --region=${GCP_REGION}
+            --delivery-pipeline=sample-springboot-cloudrun-deployment
+            --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
+            --source ./deploy
 
 jobs:
   pre-build-app:
@@ -95,6 +87,8 @@ jobs:
       - checkout
       - gcloud_setting
       - cloudrun_deploy
+    environment:
+      TZ: Asia/Tokyo
 
 workflows:
   main:
@@ -109,12 +103,11 @@ workflows:
           requires:
             - pre-build-app
             - pre-build-docker
-      - confirm_deploy:
-          type: approval
-          requires:
-            - build-and-push
+          filters:
+            branches:
+              only: main
       - deploy:
           context:
             - GoogleCloud
           requires:
-            - confirm_deploy
+            - build-and-push
