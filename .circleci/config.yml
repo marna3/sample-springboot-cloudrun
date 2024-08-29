@@ -48,9 +48,13 @@ commands:
   cloudrun_deploy:
     steps:
       - run:
+          name: Set IMAGE_TAG from Maven
+          command: |
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
+      - run:
           name: Apply Cloud Deploy release
           command: |
-            export IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
             gcloud deploy releases create rel-'$DATE'-'$TIME'
               --project=${GCP_PROJECT}
               --region=${GCP_REGION}
