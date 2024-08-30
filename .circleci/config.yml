@@ -46,15 +46,18 @@ commands:
   cloudrun_deploy:
     steps:
       - run:
-          name: Set IMAGE_TAG from Maven
+          name: Set Variables
           command: |
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            TIME=$(TZ=Asia/Tokyo date +"%Y%m%d-%H%M%S")
             echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
+            echo "export TIME=${TIME}" >> $BASH_ENV
       - run:
           name: Apply Cloud Deploy release
-          command: gcloud deploy releases create rel-'$DATE'-'$TIME'
+          command: gcloud deploy releases create rel-${TIME}
             --project=${GCP_PROJECT}
             --region=${GCP_REGION}
+            --annotations=imageTag=${IMAGE_TAG}
             --delivery-pipeline=sample-springboot-cloudrun-deployment
             --images=sample-springboot-cloudrun-image=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
             --source ./deploy
@@ -87,8 +90,6 @@ jobs:
       - checkout
       - gcloud_setting
       - cloudrun_deploy
-    environment:
-      TZ: Asia/Tokyo
 
 workflows:
   main:
