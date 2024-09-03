@@ -9,3 +9,10 @@ profiles:
     - service.yaml
 deploy:
   cloudrun: {}
+verify:
+- name: verification-test # スモークテストのサンプル
+  container:
+    name: verification-echo
+    image: ubuntu
+    command: ["/bin/sh"]
+    args: ["-c", 'echo "Your test or tests would go here."' ] # TODO: サービスへのHTTPリクエストに変更する
