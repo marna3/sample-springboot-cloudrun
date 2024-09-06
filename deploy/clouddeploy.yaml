@@ -20,3 +20,7 @@ description: Cloud Run service in dev environment
 requireApproval: true
 run:
   location: projects/<GCP_PROJECT>/locations/<GCP_REGION>
+executionConfigs:
+- usages: ["RENDER", "DEPLOY"]
+  serviceAccount: <CUSTOM_EXECUTION_SERVICE_ACCOUNT>@<GCP_PROJECT>.iam.gserviceaccount.com
+- usages: ["PREDEPLOY", "VERIFY", "POSTDEPLOY"]
