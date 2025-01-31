@@ -1,5 +1,11 @@
 version: 2.1
 
+branch-filter-settings:
+  develop-filters: &develop_filters
+    branches:
+      only:
+        - main
+
 executors:
   openjdk:
     docker:
@@ -99,16 +105,14 @@ workflows:
             - SonarCloud
       - pre-build-docker
       - build-and-push:
-          context:
-            - GoogleCloud
+          filters: *develop_filters
           requires:
             - pre-build-app
             - pre-build-docker
-          filters:
-            branches:
-              only: main
-      - deploy:
           context:
             - GoogleCloud
+      - deploy:
           requires:
             - build-and-push
+          context:
+            - GoogleCloud
