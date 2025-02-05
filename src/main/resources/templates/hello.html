@@ -2,12 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8"></meta>
-        <title>Hello World</title>
+        <title>Sample Spring Boot App</title>
     </head>
     <body>
         <h1>Hello World</h1>
-        <form method="post" action="/hello">
-            入力: <input type="text" name="text1" />
+        <form method="post" action="/hello/employee">
+            従業員ID:<input type="text" placeholder="1" name="employee_id" th:value="${employee_id_value}" />
             <input type="submit" value="クリック" />
         </form>
     </body>
