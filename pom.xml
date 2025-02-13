@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.1</version>
+		<version>3.3.8</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>helloworld</artifactId>
+	<artifactId>sample-springboot-cloudrun</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
-	<name>helloworld</name>
+	<name>sample-springboot-cloudrun</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
