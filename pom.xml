@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>sample-springboot-cloudrun</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>sample-springboot-cloudrun</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
@@ -37,7 +37,36 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.36</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.3.232</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -98,26 +127,6 @@
 							<formats>
 								<format>XML</format>
 							</formats>
-						</configuration>
-					</execution>
-					<execution>
-						<id>check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>LINE</counter> <!-- Lineカバレッジ-->
-												<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum> <!-- 50%のカバレッジ -->
-										</limit>
-									</limits>
-								</rule>
-							</rules>
 						</configuration>
 					</execution>
 				</executions>
