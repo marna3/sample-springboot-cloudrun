@@ -60,7 +60,7 @@ commands:
           name: Image Scan
           command: |
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            docker run --rm -i aquasec/trivy image \
+            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image \
               ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
   gcloud_setting:
     steps:
