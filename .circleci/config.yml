@@ -54,6 +54,14 @@ commands:
               -DskipTests=True \
               -DgoogleCloudRegion=${GCP_REGION} \
               -DgoogleCloudProjectId=${GCP_PROJECT}
+  image_scan:
+    steps:
+      - run:
+          name: Image Scan
+          command: |
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            docker run --rm -i aquasec/trivy image \
+              ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
   gcloud_setting:
     steps:
       - run:
@@ -113,13 +121,21 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - dockerfile_analyze
-  build-and-push:
+  image_build:
     executor: openjdk
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - image_build
+      - image_scan
+  # ToDo: image_pushは未完成
+  image_push:
+    executor: openjdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - gcloud_setting
       - image_push
   deploy:
@@ -135,16 +151,21 @@ workflows:
       - unit_test
       - static_analyze
       - dockerfile_analyze
-      - build-and-push:
-          filters: *develop_filters
+      - image_build:
           requires:
             - unit_test
             - static_analyze
             - dockerfile_analyze
           context:
             - GoogleCloud
+      - image_push:
+          filters: *develop_filters
+          requires:
+            - image_build
+          context:
+            - GoogleCloud
       - deploy:
           requires:
-            - build-and-push
+            - image_push
           context:
             - GoogleCloud
