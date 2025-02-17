@@ -9,7 +9,7 @@ branch-filter-settings:
 executors:
   openjdk:
     docker:
-      - image: 'cimg/openjdk:17.0'
+      - image: 'cimg/openjdk:21.0'
 
 commands:
   unit_test:
