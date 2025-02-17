@@ -57,6 +57,7 @@ commands:
   image_scan:
     steps:
       - run:
+          ### ToDo: Trivyのスキャン結果をArtifactsに保存したい、High以上の脆弱性がある場合はエラーにしたい
           name: Image Scan
           command: |
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
