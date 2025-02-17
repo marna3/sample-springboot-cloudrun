@@ -24,12 +24,17 @@ commands:
   check_bugs:
     steps:
       - run:
+          ### ToDo: CheckStyleのレポート生成だけでなく、エラーチェックも行いたい (現状、できていない)
           name: Check Bugs
           command: mvn spotbugs:check
+      - store_artifacts:
+          path: ./target/spotbugs.html
+          destination: spotbugs
   check_style:
     steps:
       - run:
-          name: Check Style
+          ### ToDo: CheckStyleのレポート生成だけでなく、エラーチェックも行いたい
+          name: Reporting Style Check
           command: mvn clean checkstyle:checkstyle
       - store_artifacts:
           path: ./target
