@@ -117,13 +117,12 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
-					<execution>
+					<!-- ToDo: カバレッジ閾値について調査し、設定を更新する -->
+					<!-- <execution>
 						<id>check</id>
-						<phase>test</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
-						<!-- ToDo: カバレッジ閾値について調査し、設定を更新する -->
 						<configuration>
 							<rules>
 								<rule>
@@ -132,13 +131,13 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0</minimum>
+											<minimum>0.8</minimum>
 										</limit>
 									</limits>
 								</rule>
 							</rules>
 						</configuration>
-					</execution>
+					</execution> -->
 				</executions>
 			</plugin>
 
