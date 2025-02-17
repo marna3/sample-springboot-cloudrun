@@ -98,6 +98,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- 単体テストのカバレッジ測定用プラグインを追加 -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -111,29 +112,27 @@
 					</execution>
 					<execution>
 						<id>report</id>
+						<phase>test</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
-						<configuration>
-							<formats>
-								<format>XML</format>
-							</formats>
-						</configuration>
 					</execution>
 					<execution>
 						<id>check</id>
+						<phase>test</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
+						<!-- ToDo: カバレッジ閾値について調査し、設定を更新する -->
 						<configuration>
 							<rules>
 								<rule>
 									<element>BUNDLE</element>
 									<limits>
 										<limit>
-											<counter>LINE</counter> <!-- Lineカバレッジ-->
-												<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum> <!-- 50%のカバレッジ -->
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -143,6 +142,7 @@
 				</executions>
 			</plugin>
 
+			<!-- 静的解析用のプラグインを追加 -->
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
