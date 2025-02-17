@@ -19,7 +19,7 @@ commands:
           command: mvn clean test
           when: always
       - store_artifacts:
-          path: target/site/jacoco/index.html
+          path: target/site/jacoco
   check_bugs:
     steps:
       - run:
