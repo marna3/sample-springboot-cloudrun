@@ -8,6 +8,7 @@ class SpringBootSampleApplicationTests {
 
 	@Test
 	void contextLoads() {
+		assert false;
 	}
 
 }
