@@ -18,10 +18,8 @@ commands:
           name: Unit Test & Output Coverage Report
           command: mvn clean test
           when: always
-      - store_test_results:
-          path:  target/site/jacoco
       - store_artifacts:
-          path: target/site/jacoco
+          path: target/site/jacoco/index.html
   check_bugs:
     steps:
       - run:
