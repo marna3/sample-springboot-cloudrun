@@ -18,7 +18,8 @@ commands:
           name: Unit Test & Output Coverage Report
           command: mvn clean test
       - store_artifacts:
-          path: target/site/jacoco
+          path: ./target/site/jacoco
+          destination: jacoco
       ### ToDo: カバレッジの閾値チェックのコマンドを追加したい
   check_bugs:
     steps:
@@ -29,7 +30,10 @@ commands:
     steps:
       - run:
           name: Check Style
-          command: mvn checkstyle:checkstyle
+          command: mvn clean checkstyle:checkstyle
+      - store_artifacts:
+          path: ./target
+          destination: checkstyle
   dockerfile_analyze:
     steps:
       - run:
