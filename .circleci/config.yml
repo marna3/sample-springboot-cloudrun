@@ -50,6 +50,9 @@ commands:
             trivy config ./build/Dockerfile \
               --exit-code 1 \
               --config ./build/trivy-scan-dockerfile.yaml
+      - store_artifacts:
+          path: ./trivy-*.json
+          destination: trivy
   image_build:
     steps:
       - run:
@@ -88,6 +91,9 @@ commands:
               --exit-code 1 \
               --config ./build/trivy-scan-image.yaml \
               ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
+      - store_artifacts:
+          path: ./trivy-*.json
+          destination: trivy
   gcloud_setting:
     steps:
       - run:
@@ -186,10 +192,15 @@ workflows:
             - dockerfile_analyze
           context:
             - GoogleCloud
+      - image_scan:
+          requires:
+            - image_build
+          context:
+            - GoogleCloud
       - image_push:
           filters: *develop_filters
           requires:
-            - image_build
+            - image_scan
           context:
             - GoogleCloud
       - deploy:
