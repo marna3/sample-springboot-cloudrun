@@ -1,0 +1,5 @@
+format: template
+# template: @contrib/html.tpl
+output: trivy-report.html
+severity:
+  - CRITICAL
