@@ -179,12 +179,12 @@ workflows:
             - dockerfile_analyze
           context:
             - GoogleCloud
-      # - image_push:
-      #     filters: *develop_filters
-      #     requires:
-      #       - image_scan
-      #     context:
-      #       - GoogleCloud
+      - image_push:
+          filters: *develop_filters
+          requires:
+            - image_build
+          context:
+            - GoogleCloud
       - deploy:
           requires:
             - image_push
