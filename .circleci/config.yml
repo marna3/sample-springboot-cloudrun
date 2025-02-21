@@ -53,6 +53,17 @@ commands:
       - store_artifacts:
           path: ./trivy-dockerfile-report.json
           destination: trivy
+  image_tag_setting:
+    steps:
+      - run:
+          name: Install xmllint Command
+          command: |
+            apt install -y libxml2-utils
+      - run:
+          name: Set Image Tag
+          command: |
+            IMAGE_TAG=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ./pom.xml)
+            echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
   image_build:
     steps:
       - run:
@@ -65,8 +76,8 @@ commands:
       - run:
           name: Save Image as Tar
           command: |
-            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
             mkdir -p images
+            echo "Image Tag: ${IMAGE_TAG}"
             docker image save -o \
               "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}" \
               "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}"
@@ -81,12 +92,11 @@ commands:
       - run:
           name: Load Image from Tar
           command: |
-            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "Image Tag: ${IMAGE_TAG}"
             docker image load -i "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}"
       - run:
           name: Image Scan
           command: |
-            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
             docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.59.1 image \
               --exit-code 1 \
               --config ./build/trivy-scan-image.yaml \
@@ -157,11 +167,13 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - image_tag_setting
       - image_build
   image_scan:
     executor: container-check
     steps:
       - checkout
+      - image_tag_setting
       - image_scan
   # ToDo: image_pushは未完成
   image_push:
