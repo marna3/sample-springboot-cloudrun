@@ -80,8 +80,7 @@ commands:
       - run:
           name: Image Scan
           command: |
-            trivy image --docker-host unix:///var/run/docker.sock \
-              ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
+            trivy image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
               --exit-code 1 \
               --config ./build/trivy-scan-image.yaml
       - store_artifacts:
@@ -186,17 +185,12 @@ workflows:
             - dockerfile_analyze
           context:
             - GoogleCloud
-      - image_scan:
-          requires:
-            - image_build
-          context:
-            - GoogleCloud
-      - image_push:
-          filters: *develop_filters
-          requires:
-            - image_scan
-          context:
-            - GoogleCloud
+      # - image_push:
+      #     filters: *develop_filters
+      #     requires:
+      #       - image_scan
+      #     context:
+      #       - GoogleCloud
       - deploy:
           requires:
             - image_push
