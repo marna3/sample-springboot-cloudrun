@@ -58,8 +58,12 @@ commands:
       - run:
           name: Set Image Tag
           command: |
-            IMAGE_TAG=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ./pom.xml)
-            echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "export IMAGE_TAG=${IMAGE_TAG}" >> image_tag_env.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - image_tag_env.sh
   image_build:
     steps:
       - run:
@@ -73,7 +77,7 @@ commands:
           name: Save Image as Tar
           command: |
             mkdir -p images
-            echo "Image Tag: ${IMAGE_TAG}"
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
             docker image save -o \
               "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}" \
               "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}"
@@ -86,17 +90,20 @@ commands:
       - attach_workspace:
           at: .
       - run:
+          name: Load Image Tag Variables
+          command: |
+            source image_tag_env.sh
+            echo "Loaded IMAGE_TAG=${IMAGE_TAG}"
+      - run:
           name: Load Image from Tar
           command: |
-            echo "Image Tag: ${IMAGE_TAG}"
             docker image load -i "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}"
       - run:
           name: Image Scan
           command: |
-            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.59.1 image \
+            trivy image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
               --exit-code 1 \
-              --config ./build/trivy-scan-image.yaml \
-              ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
+              --config ./build/trivy-scan-image.yaml
       - store_artifacts:
           path: ./trivy-image-report.json
           destination: trivy
