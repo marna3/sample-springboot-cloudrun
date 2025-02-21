@@ -1,0 +1,6 @@
+format: template
+template: "@/usr/local/share/trivy/templates/html.tpl"
+output: trivy-image-report.html
+severity:
+  # - HIGH
+  - CRITICAL

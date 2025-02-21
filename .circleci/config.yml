@@ -10,6 +10,9 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:21.0'
+  container-check:
+    docker:
+      - image: 'aquasec/trivy:0.59.1'
 
 commands:
   unit_test:
@@ -44,7 +47,9 @@ commands:
       - run:
           name: Dockerfile Lint
           command: |
-            docker run --rm -i hadolint/hadolint <./build/Dockerfile
+            trivy config ./build/Dockerfile
+              --exit-code 1 
+              --config ./build/trivy-scan-dockerfile.yaml
   image_build:
     steps:
       - run:
