@@ -10,9 +10,6 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:21.0'
-  container-check:
-    docker:
-      - image: 'aquasec/trivy:0.59.1'
 
 commands:
   unit_test:
@@ -42,6 +39,13 @@ commands:
       - store_artifacts:
           path: ./target
           destination: checkstyle
+  install_trivy:
+  # ToDo: openjdkイメージにtrivyも入れられればimage scanも含めて構成をシンプルにできる
+    steps:
+      - run: 
+          name: Install trivy
+          command: |
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.59.1
   dockerfile_analyze:
     steps:
       - run:
@@ -53,13 +57,6 @@ commands:
       - store_artifacts:
           path: ./trivy-dockerfile-report.json
           destination: trivy
-  install_trivy:
-  # ToDo: openjdkイメージにtrivyも入れられればimage scanも含めて構成をシンプルにできる
-    steps:
-      - run: 
-          name: Install trivy
-          command: |
-            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.59.1
   image_build: 
   # ToDo: mainブランチ更新用にimage_build_pushジョブを作る
     steps:
@@ -142,6 +139,7 @@ jobs:
     executor: container-check
     steps:
       - checkout
+      - install_trivy
       - dockerfile_analyze
   image_build:
     executor: openjdk
@@ -149,12 +147,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - install_trivy
       - image_build
-  image_scan:
-    executor: container-check
-    steps:
-      - checkout
+      - install_trivy
       - image_scan
   # ToDo: image_pushは未完成
   image_push:
