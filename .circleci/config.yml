@@ -56,10 +56,6 @@ commands:
   image_tag_setting:
     steps:
       - run:
-          name: Install xmllint Command
-          command: |
-            sudo apt install -y libxml2-utils
-      - run:
           name: Set Image Tag
           command: |
             IMAGE_TAG=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ./pom.xml)
