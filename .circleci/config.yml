@@ -10,6 +10,9 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:21.0'
+  container-check:
+    docker:
+      - image: 'aquasec/trivy:0.59.1'
 
 commands:
   unit_test:
@@ -44,8 +47,7 @@ commands:
       - run:
           name: Dockerfile Lint
           command: |
-            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.59.1 config \
-              ./build/Dockerfile \
+            trivy config ./build/Dockerfile \
               --exit-code 1 \
               --config ./build/trivy-scan-dockerfile.yaml
   image_build:
@@ -57,10 +59,28 @@ commands:
               -DskipTests=True \
               -DgoogleCloudRegion=${GCP_REGION} \
               -DgoogleCloudProjectId=${GCP_PROJECT}
+      - run:
+          name: Save Image as Tar
+          command: |
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            mkdir -p images
+            docker image save -o \
+              "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}" \
+              "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - images
   image_scan:
     steps:
+      - attach_workspace:
+          at: .
       - run:
-          ### ToDo: Trivyのスキャン結果をArtifactsに保存したい、High以上の脆弱性がある場合はエラーにしたい
+          name: Load Image from Tar
+          command: |
+            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            docker image load -i "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}"
+      - run:
           name: Image Scan
           command: |
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -121,11 +141,9 @@ jobs:
       - check_bugs
       - check_style
   dockerfile_analyze:
-    executor: openjdk
+    executor: confainer-check
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - dockerfile_analyze
   image_build:
     executor: openjdk
@@ -134,6 +152,10 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - image_build
+  image_scan:
+    executor: confainer-check
+    steps:
+      - checkout
       - image_scan
   # ToDo: image_pushは未完成
   image_push:
