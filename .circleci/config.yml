@@ -176,7 +176,6 @@ jobs:
     executor: container-check
     steps:
       - checkout
-      - image_tag_setting
       - image_scan
   # ToDo: image_pushは未完成
   image_push:
