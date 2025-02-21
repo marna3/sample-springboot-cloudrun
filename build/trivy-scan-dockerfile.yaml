@@ -1,6 +1,5 @@
-format: template
-template: "@/usr/local/share/trivy/templates/html.tpl"
-output: trivy-dockerfile-report.html
+format: json
+output: trivy-dockerfile-report.json
 severity:
   # - HIGH
   - CRITICAL

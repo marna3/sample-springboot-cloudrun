@@ -1,6 +1,5 @@
-format: template
-template: "@/usr/local/share/trivy/templates/html.tpl"
-output: trivy-image-report.html
+format: json
+output: trivy-image-report.json
 severity:
   # - HIGH
   - CRITICAL
