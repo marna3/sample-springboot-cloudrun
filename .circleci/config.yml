@@ -80,21 +80,13 @@ commands:
       - run:
           name: Image Scan
           command: |
-            trivy image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
+            trivy image --docker-host unix://$HOME/.rd/docker.sock \
+              ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
               --exit-code 1 \
               --config ./build/trivy-scan-image.yaml
       - store_artifacts:
           path: ./trivy-image-report.json
           destination: trivy
-  gcloud_setting:
-    steps:
-      - run:
-          name: Install Gcloud Command & Authorize Google Cloud
-          command: |
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-            sudo apt-get -y update && sudo apt-get -y install google-cloud-cli
-            echo ${GCP_SERVICE_ACCOUNT_KEY} | base64 -d | gcloud auth activate-service-account --key-file=-
   image_push:
     steps:
       - run:
@@ -106,6 +98,15 @@ commands:
             mvn docker:push \
               -DgoogleCloudRegion=${GCP_REGION} \
               -DgoogleCloudProjectId=${GCP_PROJECT}
+  gcloud_setting:
+    steps:
+      - run:
+          name: Install Gcloud Command & Authorize Google Cloud
+          command: |
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            sudo apt-get -y update && sudo apt-get -y install google-cloud-cli
+            echo ${GCP_SERVICE_ACCOUNT_KEY} | base64 -d | gcloud auth activate-service-account --key-file=-
   cloudrun_deploy:
     steps:
       - run:
