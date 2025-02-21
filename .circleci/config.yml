@@ -58,7 +58,7 @@ commands:
       - run:
           name: Install xmllint Command
           command: |
-            apt install -y libxml2-utils
+            sudo apt install -y libxml2-utils
       - run:
           name: Set Image Tag
           command: |
