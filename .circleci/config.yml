@@ -80,7 +80,7 @@ commands:
       - run:
           name: Image Scan
           command: |
-            trivy image --docker-host unix://$HOME/.rd/docker.sock \
+            trivy image --docker-host unix:///var/run/docker.sock \
               ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG} \
               --exit-code 1 \
               --config ./build/trivy-scan-image.yaml
