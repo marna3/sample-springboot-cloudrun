@@ -10,9 +10,6 @@ executors:
   openjdk:
     docker:
       - image: 'cimg/openjdk:21.0'
-  container-check:
-    docker:
-      - image: 'aquasec/trivy:0.59.1'
 
 commands:
   unit_test:
@@ -47,8 +44,9 @@ commands:
       - run:
           name: Dockerfile Lint
           command: |
-            trivy config ./build/Dockerfile
-              --exit-code 1 
+            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.59.1 config \
+              ./build/Dockerfile \
+              --exit-code 1 \
               --config ./build/trivy-scan-dockerfile.yaml
   image_build:
     steps:
@@ -66,8 +64,9 @@ commands:
           name: Image Scan
           command: |
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image \
-              --config ./build/trivy.yaml
+            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.59.1 image \
+              --exit-code 1 \
+              --config ./build/trivy-scan-image.yaml \
               ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}
   gcloud_setting:
     steps:
