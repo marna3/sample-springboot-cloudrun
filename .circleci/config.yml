@@ -1,6 +1,10 @@
 version: 2.1
 
 branch-filter-settings:
+  feature-filters: &feature_filters
+    branches:
+      only:
+        - /^feature\/.*|^hotfix\/.*/
   develop-filters: &develop_filters
     branches:
       only:
@@ -150,14 +154,16 @@ jobs:
       - image_build
       - install_trivy
       - image_scan
-  # ToDo: image_pushは未完成
-  image_push:
+  image_build_push:
     executor: openjdk
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - gcloud_setting
+      - image_build
+      - install_trivy
+      - image_scan
+      - gcloud_setting # ToDo: ここがopenjdkイメージでは動かない
       - image_push
   deploy:
     executor: openjdk
@@ -167,26 +173,42 @@ jobs:
       - cloudrun_deploy
 
 workflows:
-  main:
+  develop-workflow:
     jobs:
       - unit_test
       - static_analyze
       - dockerfile_analyze
       - image_build:
+          filters: *feature_filters #featureブランチの段階ではローカルでのビルドのみ
           requires:
             - unit_test
             - static_analyze
             - dockerfile_analyze
           context:
             - GoogleCloud
-      - image_push:
-          filters: *develop_filters
+      - image_build_push:
+          filters: *develop_filters #developブランチの段階ではイメージのビルドとプッシュを行う
           requires:
-            - image_build
+            - unit_test
+            - static_analyze
+            - dockerfile_analyze
           context:
             - GoogleCloud
       - deploy:
+          filters: *develop_filters
           requires:
-            - image_push
+            - image_build_push
           context:
             - GoogleCloud
+
+  # staging-workflow: # cloud deployの実行を行う (共通開発環境のARからイメージを取得し、stagingのARにコピー)
+  #   jobs:
+  #     - deploy:
+  #         context:
+  #           - GoogleCloud
+  
+  # production-workflow: # cloud deployの実行を行う
+  #   jobs:
+  #     - deploy:
+  #         context:
+  #           - GoogleCloud
