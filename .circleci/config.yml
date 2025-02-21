@@ -53,18 +53,15 @@ commands:
       - store_artifacts:
           path: ./trivy-dockerfile-report.json
           destination: trivy
-  image_tag_setting:
+  install_trivy:
+  # ToDo: openjdkイメージにtrivyも入れられればimage scanも含めて構成をシンプルにできる
     steps:
-      - run:
-          name: Set Image Tag
+      - run: 
+          name: Install trivy
           command: |
-            IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            echo "export IMAGE_TAG=${IMAGE_TAG}" >> image_tag_env.sh
-      - persist_to_workspace:
-          root: .
-          paths:
-            - image_tag_env.sh
-  image_build:
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.59.1
+  image_build: 
+  # ToDo: mainブランチ更新用にimage_build_pushジョブを作る
     steps:
       - run:
           name: Image Build
@@ -74,30 +71,12 @@ commands:
               -DgoogleCloudRegion=${GCP_REGION} \
               -DgoogleCloudProjectId=${GCP_PROJECT}
       - run:
-          name: Save Image as Tar
+          name: Set Image Tag
           command: |
-            mkdir -p images
             IMAGE_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            docker image save -o \
-              "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}" \
-              "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/sample-springboot-cloudrun/helloworld:${IMAGE_TAG}"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - images
+            echo "export IMAGE_TAG=${IMAGE_TAG}" >> $BASH_ENV
   image_scan:
     steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Load Image Tag Variables
-          command: |
-            source image_tag_env.sh
-            echo "Loaded IMAGE_TAG=${IMAGE_TAG}"
-      - run:
-          name: Load Image from Tar
-          command: |
-            docker image load -i "images/sample-springboot-cloudrun_helloworld:${IMAGE_TAG}"
       - run:
           name: Image Scan
           command: |
@@ -170,7 +149,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - image_tag_setting
+      - install_trivy
       - image_build
   image_scan:
     executor: container-check
