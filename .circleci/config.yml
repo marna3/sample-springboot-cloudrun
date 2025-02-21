@@ -141,7 +141,7 @@ jobs:
       - check_bugs
       - check_style
   dockerfile_analyze:
-    executor: confainer-check
+    executor: container-check
     steps:
       - checkout
       - dockerfile_analyze
@@ -153,7 +153,7 @@ jobs:
           docker_layer_caching: true
       - image_build
   image_scan:
-    executor: confainer-check
+    executor: container-check
     steps:
       - checkout
       - image_scan
