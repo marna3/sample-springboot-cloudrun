@@ -136,7 +136,7 @@ jobs:
       - check_bugs
       - check_style
   dockerfile_analyze:
-    executor: container-check
+    executor: openjdk
     steps:
       - checkout
       - install_trivy
